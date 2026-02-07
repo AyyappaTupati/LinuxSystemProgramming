@@ -65,3 +65,49 @@ int main() {
 
     return 0;
 }
+
+D: 7 FEB 26
+- getting the understandid of the system library function how it is used.
+- Well the system library function is used to execute the shall comands, when ever we use the system function in our application it is used to execute the passed shall command.
+- the sysntax is
+- int system(const char *command);
+
+- .............................
+- #include "header.h"
+
+int main()
+{
+        printf("Executing the shall ls command through the c programm\n");
+        sleep(10);
+        system("ls");
+        printf("Here Ls is executed by the sh shall and created by the bash shall to execute ls\n");
+        while(1);
+}
+..................................
+- Here the process is like this first our bash is execute the ./a.out and our ./a.out is encounter the system function call this will creat a shell sh to execute the ls command.
+- So in between there is a special process is creted that is sh shall.
+- Below code is demonistrate the how it is happening.
+
+- This is a P1 process which executes infinitly.
+#include "header.h"
+int main()
+{
+        printf("P1 PID =  %d  PPID = %d\n",getpid(), getppid());
+        printf("Executing the P1 process\n");
+        while(1);
+}
+
+.....
+- here the P2 process is calling the P1 with system function call
+
+  #include "header.h"
+
+int main()
+{
+        printf("P2 PID = %d PPID = %d\n",getpid(), getppid());
+        printf("Using system execute the P1 Process\n");
+        system("./P1");
+}
+
+- so observe here while exacuting the P2 process is prints the its PID and PPID and after call "System" P1 will execute so it is also print its PID and PPID but observe ther the P1 Process PPID it is not P2 process PID it is shall PID to check that use below command "ps -el" this will give you the current running process list so observe here the P1 and P2 and sh processess PPID and PID. 
+
