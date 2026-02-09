@@ -29,7 +29,7 @@ int main(){
 			 exit(1);
 		    }
 		    else{
-			    while(result = (wait(&status) != -1) ){
+			    while( ( result = wait(&status) ) != -1){
 			    	if(WIFEXITED(status))
 					printf("Child %d is terminated normally status=%d\n",result,WEXITSTATUS(status));
 				else if(WIFSIGNALED(status))
