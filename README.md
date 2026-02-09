@@ -111,3 +111,16 @@ int main()
 
 - so observe here while exacuting the P2 process is prints the its PID and PPID and after call "System" P1 will execute so it is also print its PID and PPID but observe ther the P1 Process PPID it is not P2 process PID it is shall PID to check that use below command "ps -el" this will give you the current running process list so observe here the P1 and P2 and sh processess PPID and PID. 
 
+
+D: 9 FEB 26
+Orphan 
+- this process is a process which is still being executed after the it's parent is completed it's execution so when like this happen the child/ orphan process is    adopted by the nearby subreapers like bash or systemd --user of by defult the init.
+- In orphan there is nothing to worry about why because the process manager is make it's parent is init or any other processes.
+Zombie
+ - The zombie process is created when the parent is still running but the child process is completed its execution and no instructions to execute but this zombie     process is still present in the RAM this is reduse the RAM efficience.
+ - So to avoid this type of zombie processes the parent is need to collect the exit status of the child using exit(0) / exit(1) in the child to send the exit         status of the chil 1 means normal failure and 0 means normal success exit and wait() in the parent is used to collect the status of the child in status variabl    whih is passed in the wait call
+ - int wait(int *status);
+ - the wait system call is return the child process ID and the status pointer is used to store the status of the child i.e if the child is terminated by the          signal the first byte of the status variable is filled with signal numnber.
+ - if the child is terminated normally then tha status variable 2nd bytes is filled with the 256 value if failure or 0 if success
+ - atexit(function name) is used to call a specific function at the end of the function call or before the function being terminated.
+ 
