@@ -123,4 +123,183 @@ Zombie
  - the wait system call is return the child process ID and the status pointer is used to store the status of the child i.e if the child is terminated by the          signal the first byte of the status variable is filled with signal numnber.
  - if the child is terminated normally then tha status variable 2nd bytes is filled with the 256 value if failure or 0 if success
  - atexit(function name) is used to call a specific function at the end of the function call or before the function being terminated.
+   the atexit() function is register all the function parameters in reverse order and those parameters are called executed at the end of the it's calling function.
+
+D: 16 feb 2026
+- so today topic is, the waitpid system call the use of the waitpid system call is used to wait for the particular child to finish it task.
+- unlike wait it is waiting for the one particular task to complete.
+- PID_T waitpid(child PID, &Status, options);
+- so here the PID represents, for which child the parent need to wait.
+- if we put PID as -1 waitpid() acts like a wait() waiting for any one of the task to complete first. if all childs are need to monitor used while loop.
+- so here the status and the return values are same as wait().
+- coming to options these are helps to get the signal status.
+- for example if the child process is stoped for which reson this will tell us.
+- for WUNTRACED the child process is returning the Signal number in heigher byte of status var and 0x7f in lower byte of status var.
+- So for the termination and suspension or resumed these macros are used to check the child process state like for which signal wht child is terminated. we can give the suggestion to you will terminate for this situation.
+- we have lot of macors here but we use the WUNTRACED, WCONTINUED, WNOHANG.
+- here the WUNTRACED, WCONTINUED are the waiting for the process to terminate but in WNOHANG this wait is not blocking after hiting the waitpid the parent will no longer wait to complete the child.
+
+  #include"header.h"
+int delay,result,status,pid;
+pid_t child1, child2,child3;
+int main(){
+    child1 = fork();
+    if(child1==0)
+    {
+	printf("This is the child 1 process\n");
+	srand(pid = getpid());
+	delay = rand()%10+1;
+	printf("The Child 1 pid=%d and sleep=%d\n",pid,delay);
+	sleep(delay);
+       	exit(1);
+
+    }
+    else
+    {
+	//result = wait(&status);
+	result = waitpid(child1,&status,0);
+	if(WIFEXITED(status))
+	printf("Child %d is terminated normally status=%d\n",result,WEXITSTATUS(status));
+	else if(WIFSIGNALED(status))
+	printf("Child %d is terminated of signal %d\n",result,WTERMSIG(status));
+	child2 = fork();
+	if(child2==0)
+	{
+		printf("This is the child 2 process\n");
+		srand(pid = getpid());
+		delay = rand()%10+1;
+		printf("The Child 2 pid=%d and sleep=%d\n",pid,delay);
+		sleep(delay);
+		exit(1);
+	}
+	else
+	{
+		//result = wait(&status);
+		result = waitpid(child2,&status,0);
+	   	if(WIFEXITED(status))
+		printf("Child %d is terminated normally status=%d\n",result,WEXITSTATUS(status));
+		else if(WIFSIGNALED(status))
+		printf("Child %d is terminated of signal %d\n",result,WTERMSIG(status));
+		child3 = fork();
+	        if(child3==0)
+		{
+			printf("This is the child 3 process\n");
+			srand(pid = getpid());
+			delay = rand()%10+1;
+			printf("The Child 3 pid=%d and sleep=%d\n",pid,delay);
+			sleep(delay);
+			 exit(1);
+		 }
+		 else
+		 {
+			//result = wait(&status); 
+			result = waitpid(child3,&status,0);
+			if(WIFEXITED(status))
+			printf("Child %d is terminated normally status=%d\n",result,WEXITSTATUS(status));
+			else if(WIFSIGNALED(status))
+			printf("Child %d is terminated of signal %d\n",result,WTERMSIG(status));
+			sleep(delay);
+			printf("Parent is terminated\n");
+		 }
+	    }
+    }
+    return 0;
+}
+....................................................................................
+#include"header.h"
+int delay,result,status,pid;
+int main(){
+    if(fork()==0){
+	printf("This is the child 1 process\n");
+	srand(pid = getpid());
+	delay = rand()%10+1;
+	printf("The Child 1 pid=%d and sleep=%d\n",pid,delay);
+	sleep(delay);
+       	exit(1);
+
+    }
+    else{
+	    if(fork()==0){
+		printf("This is the child 2 process\n");
+		srand(pid = getpid());
+		delay = rand()%10+1;
+		printf("The Child 2 pid=%d and sleep=%d\n",pid,delay);
+		sleep(delay);
+		exit(1);
+	    }
+	    else{
+		    if(fork()==0){
+			printf("This is the child 3 process\n");
+			srand(pid = getpid());
+			delay = rand()%10+1;
+			printf("The Child 3 pid=%d and sleep=%d\n",pid,delay);
+			sleep(delay);
+			 exit(1);
+		    }
+		    else{
+			    while( ( result = wait(&status) ) != -1){
+			    	if(WIFEXITED(status))
+					printf("Child %d is terminated normally status=%d\n",result,WEXITSTATUS(status));
+				else if(WIFSIGNALED(status))
+					printf("Child %d is terminated of signal %d\n",result,WTERMSIG(status));
+			    }
+			    printf("Parent is terminated\n");
+		    }
+	    }
+    }
+    return 0;
+}
+..................................................................................................
+#include"header.h"
+int main()
+{
+	int c1,c2, res, st;
+	c1 = fork();
+	if(c1 == 0)
+	{
+		while(1)
+		{
+		   printf("This is the child one process PID = %d | PPID = %d\n",getpid(),getppid());
+		   sleep(5);
+		}
+
+	}
+	else
+	{
+		c2 = fork();
+		if(c2 == 0)
+		{
+			while(1){
+			printf("This is the child two process PID = %d | PPID = %d\n",getpid(),getppid());
+			sleep(3);
+			}
+		}
+		else
+		{
+			res = waitpid(c1,&st,WUNTRACED|WCONTINUED|WNOHANG);
+			if(WIFEXITED(st))
+			{
+				printf(" The process %d is exited normally the status is %d\n",res,WEXITSTATUS(st));
+			}
+			if(WIFSIGNALED(st))
+			{
+				printf(" The process %d is terminated by the signal is %d\n",res,WTERMSIG(st));
+			}
+		}
+	}
+}
+
+Next topic:
+EXEC family 
+- this family is used to creat a new image of a passed executable on top of existing executable image.
+- in simple it replaces the ./a.out image with the command passed image in it.
+- so we have multipe system calls in this family primarily those are.
+- int execl(const char *pathname, const char * arg,...);
+- int execlp(const char *filename, const char * arg,...);
+- int execv(const char *pathname, const *char arg[]);
+- int execvp(const char *filename, const *char arg[]); 
+
+					
+
+
  
